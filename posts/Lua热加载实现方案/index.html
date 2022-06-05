@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"bigguan.top","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","width":300,"display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Lua热加载的实现方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lua热加载实现方案">
+<meta property="og:url" content="http://bigguan.top/posts/Lua%E7%83%AD%E5%8A%A0%E8%BD%BD%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="BigGuan">
+<meta property="og:description" content="Lua热加载的实现方法">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-06-05T12:07:24.000Z">
+<meta property="article:modified_time" content="2022-06-05T12:09:07.699Z">
+<meta property="article:author" content="BigGuan">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://bigguan.top/posts/Lua%E7%83%AD%E5%8A%A0%E8%BD%BD%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Lua热加载实现方案 | BigGuan</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">BigGuan</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-clock">
+
+    <a href="/clock/" rel="section"><i class="fas fa-clock fa-fw"></i>时钟</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://bigguan.top/posts/Lua%E7%83%AD%E5%8A%A0%E8%BD%BD%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://res.cloudinary.com/dxyfflwfe/image/upload/v1629350002/BlogPics/Curry_fv9nqn.png">
+      <meta itemprop="name" content="BigGuan">
+      <meta itemprop="description" content="生活不可能像你想象的那么好，但也不会像你想象的那么糟。人的脆弱和坚强都超乎自己的想象，有时人可能脆弱的一句话就泪流满面。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="BigGuan">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Lua热加载实现方案
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-06-05 20:07:24 / 修改时间：20:09:07" itemprop="dateCreated datePublished" datetime="2022-06-05T20:07:24+08:00">2022-06-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">Lua热加载的实现方法</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>游戏开发的日常开发中，每当进行了View层或者逻辑代码的修改之后都需要重新启动引擎，如果修改的代码是C#则需要重新编译，如果是Lua、Python等脚本语言则需要重新执行启动main入口进行脚本的加载。常见的Lua热更新都是在客户端下载所有Lua代码之后重启游戏，实现重载所有数据和函数的目的。</p>
+<p>除了热更新之外，还可以实现运行时热更。在玩家运行有的时候进行无感知的代码加载。Lua中可以使用require对文件进行加载以实现更新。简单的require会将数据层的模块修改，旧的数据或者缓存会被重置。</p>
+<p>要实现比较合理的运行时热更新，除了设计热更的逻辑之外，前提是遵循一些约定。在规定热更新约定之前，先了解一下Lua热更新涉及的原理。</p>
+<h2 id="常见的热更新方案"><a href="#常见的热更新方案" class="headerlink" title="常见的热更新方案"></a>常见的热更新方案</h2><p>本人公司的项目中使用了Lua进行逻辑层面的开发，项目中也支持Unity编辑器下的热重载功能，我对这个功能进行了一个简单的了解。Lua脚本语言可以依靠虚拟机的动态加载实现重载，C# 代码需要进行编译后执行。</p>
+<h3 id="Lua热重载大致思路"><a href="#Lua热重载大致思路" class="headerlink" title="Lua热重载大致思路"></a>Lua热重载大致思路</h3><p>编辑器下热重载的主要思路就是监听某个文件夹下的所有文件的变化，当有变化发生的时候重新require。这里面需要保持的原则就是更新替换新的function但是保持原有lua模块中的所有值，使用debug库获取upvalue进行数据的迁移，最后再替换旧的table并刷新_G表。</p>
+<h3 id="1-实现监听文件变化"><a href="#1-实现监听文件变化" class="headerlink" title="1. 实现监听文件变化"></a>1. 实现监听文件变化</h3><ul>
+<li>Unity API: AssetPostprocessor</li>
+</ul>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">List&lt;<span class="built_in">string</span>&gt; hotLoadFiles = <span class="keyword">new</span> List&lt;stirng&gt;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title">MyAllPostprocessor</span> : <span class="title">AssetPostprocessor</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">OnPostprocessAllAssets</span>(<span class="params"><span class="built_in">string</span>[] importedAssets, <span class="built_in">string</span>[] deletedAssets, <span class="built_in">string</span>[] movedAssets, <span class="built_in">string</span>[] movedFromAssetPaths</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="built_in">string</span> str <span class="keyword">in</span> importedAssets)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// str是文件的全路径，Reimported Asset: Assets/Lua/Test 1.lua</span></span><br><span class="line">            <span class="comment">// 匹配出Test1部分然后使用requre去加载</span></span><br><span class="line">            <span class="keyword">if</span> (!str.EndsWith(<span class="string">&quot;.lua&quot;</span>) || str.Contains(<span class="string">&quot;Main.lua&quot;</span>))</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">           </span><br><span class="line">            hotLoadFiles.Add(str);</span><br><span class="line">            -- 首先执行一遍热更新的逻辑控制代码</span><br><span class="line">            <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; hotLoadFiles.Count; i++) &#123;</span><br><span class="line">                 -- Todo 系统模块代码进行读值重载操作</span><br><span class="line">                 LuaHotModule.Reload(hotLoadFiles[i]);</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            Debug.Log(<span class="string">&quot;Reimported Asset: &quot;</span> + str);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="built_in">string</span> str <span class="keyword">in</span> deletedAssets)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">&quot;Deleted Asset: &quot;</span> + str);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; movedAssets.Length; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(<span class="string">&quot;Moved Asset: &quot;</span> + movedAssets[i] + <span class="string">&quot; from: &quot;</span> + movedFromAssetPaths[i]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用Unity编辑器下的FileSystemWatcher</li>
+</ul>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!Directory.Exists(dirPath)) </span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line"><span class="keyword">var</span> watcher = <span class="keyword">new</span> FileSystemWatcher();</span><br><span class="line">watcher.IncludeSubdirectories = <span class="literal">true</span>;</span><br><span class="line">watcher.Path = dirPath;</span><br><span class="line">watcher.NotifyFilter = NotifyFilters.LastWrite;</span><br><span class="line">watcher.Filter = <span class="string">&quot;*.lua&quot;</span>;</span><br><span class="line">watcher.Changed += handler;</span><br><span class="line">watcher.EnableRaisingEvents = <span class="literal">true</span>;</span><br><span class="line">watcher.InternalBufferSize = <span class="number">10240</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="2-实现Lua文件的热重载"><a href="#2-实现Lua文件的热重载" class="headerlink" title="2. 实现Lua文件的热重载"></a>2. 实现Lua文件的热重载</h3><h4 id="require机制"><a href="#require机制" class="headerlink" title="require机制"></a>require机制</h4><p>Lua中对模块的管理可以使用Require函数来实现，把公用的代码放在一个目录下，然后用API接口进行调用。实现代码的解耦和重用。</p>
+<p>Lua中的module是由变量、函数、和数据table组成。一个模块就是Lua中的一个table就可以作为一个模块，只要在lua文件中将其return就可以供外部进行使用，其使用方法和Javascript的模块管理使用方法类似。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- test.lua</span></span><br><span class="line"><span class="keyword">local</span> test = Class()</span><br><span class="line"></span><br><span class="line">test.name = <span class="string">&quot;test&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test:OnCreated</span><span class="params">()</span></span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test:OnUpdated</span><span class="params">()</span></span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> test</span><br><span class="line"></span><br><span class="line"><span class="comment">-- main.lua</span></span><br><span class="line"><span class="keyword">local</span> testCls = <span class="built_in">require</span>(<span class="string">&quot;test&quot;</span>)</span><br><span class="line">或</span><br><span class="line"><span class="keyword">local</span> testCls = <span class="built_in">require</span> <span class="string">&quot;test&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>require之后，Lua本身会在package.loaded的table中缓存一份test.lua的模块数据，并且多次require只会执行一次，当loaded中有就返回package.loaded[“test”]。实现模块的更新就是清空原有的模块数据，并且执行加载新的模块，如果只进行这种处理的化会发先，是模块中的缓存数据也会被清空，很多数据都只会在登录的时候进行赋值。所以实现热重载就需要更新模块的function，但是不更新模块中的upvalue。热重载不希望数据被覆盖或清空。使用Lua提供的API debug.getupvalue和debug.setupvalue可以对指定table进行数据的缓存和更新。函数在Lua中也会被当做upvalue,所以对对象需要判断是不是function类型。对于函数使用新的，对于数据使用旧的，对于table类型需要递归处理。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> oldModule = <span class="built_in">require</span> <span class="string">&quot;test&quot;</span></span><br><span class="line"><span class="built_in">package</span>.<span class="built_in">loaded</span>[<span class="string">&quot;test&quot;</span>] = <span class="literal">nil</span></span><br><span class="line"><span class="keyword">local</span> newModule = <span class="built_in">require</span> <span class="string">&quot;test&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i = <span class="number">1</span>, <span class="built_in">math</span>.<span class="built_in">huge</span> <span class="keyword">do</span></span><br><span class="line">    <span class="keyword">local</span> name, value = <span class="built_in">debug</span>.<span class="built_in">getupvalue</span>(oldModule, i)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> name <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="built_in">debug</span>.<span class="built_in">setupvalue</span>(newModule, i, value)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="热更新规则"><a href="#热更新规则" class="headerlink" title="热更新规则"></a>热更新规则</h3><ol>
+<li>遍历模块的所有数据，对象是table就保留旧模块的，对象是function就保存新得</li>
+<li>function本身使用新的，function对象中的upvalue使用旧的</li>
+<li>使用debug.getmetatable获取table中的metatable进行更新和覆盖</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E5%9B%BD%E9%99%85%E5%8C%96%E6%97%B6%E5%8C%BA%E9%97%AE%E9%A2%98/" rel="prev" title="游戏开发中的国际化时区问题">
+      <i class="fa fa-chevron-left"></i> 游戏开发中的国际化时区问题
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E7%83%AD%E6%9B%B4%E6%96%B0%E6%96%B9%E6%A1%88"><span class="nav-number">1.1.</span> <span class="nav-text">常见的热更新方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lua%E7%83%AD%E9%87%8D%E8%BD%BD%E5%A4%A7%E8%87%B4%E6%80%9D%E8%B7%AF"><span class="nav-number">1.1.1.</span> <span class="nav-text">Lua热重载大致思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%9E%E7%8E%B0%E7%9B%91%E5%90%AC%E6%96%87%E4%BB%B6%E5%8F%98%E5%8C%96"><span class="nav-number">1.1.2.</span> <span class="nav-text">1. 实现监听文件变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AE%9E%E7%8E%B0Lua%E6%96%87%E4%BB%B6%E7%9A%84%E7%83%AD%E9%87%8D%E8%BD%BD"><span class="nav-number">1.1.3.</span> <span class="nav-text">2. 实现Lua文件的热重载</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#require%E6%9C%BA%E5%88%B6"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">require机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%83%AD%E6%9B%B4%E6%96%B0%E8%A7%84%E5%88%99"><span class="nav-number">1.1.4.</span> <span class="nav-text">热更新规则</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="BigGuan"
+      src="https://res.cloudinary.com/dxyfflwfe/image/upload/v1629350002/BlogPics/Curry_fv9nqn.png">
+  <p class="site-author-name" itemprop="name">BigGuan</p>
+  <div class="site-description" itemprop="description">生活不可能像你想象的那么好，但也不会像你想象的那么糟。人的脆弱和坚强都超乎自己的想象，有时人可能脆弱的一句话就泪流满面。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/guanyy95" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;guanyy95" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:guanyy095@gmail.com" title="E-Mail → mailto:guanyy095@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">BigGuan</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+-->
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+    <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+    <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+    <script type="text/javascript" src="/js/src/fireworks.js"></script>
+  
+</body>
+</html>
