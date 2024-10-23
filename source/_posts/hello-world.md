@@ -35,4 +35,8 @@ More info: [Generating](https://hexo.io/docs/generating.html)
 $ hexo deploy
 ```
 
+``` lua
+local var = 666
+```
+
 More info: [Deployment](https://hexo.io/docs/one-command-deployment.html)
