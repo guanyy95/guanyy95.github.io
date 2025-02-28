@@ -4,13 +4,17 @@
   <meta charset="utf-8">
   
   
-  <title>Archives: 2024/10 | 蹲在天边拉屎</title>
+  <title>lua深拷贝 | 蹲在天边拉屎</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="蹲在天边拉屎">
-<meta property="og:url" content="https://guanyy95.github.io/archives/2024/10/index.html">
+  <meta name="description" content="实现Lua的深拷贝">
+<meta property="og:type" content="article">
+<meta property="og:title" content="lua深拷贝">
+<meta property="og:url" content="https://guanyy95.github.io/2021/09/22/lua%E6%B7%B1%E6%8B%B7%E8%B4%9D/index.html">
 <meta property="og:site_name" content="蹲在天边拉屎">
+<meta property="og:description" content="实现Lua的深拷贝">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-09-22T00:48:10.000Z">
+<meta property="article:modified_time" content="2024-10-24T02:20:07.853Z">
 <meta property="article:author" content="GYY">
 <meta name="twitter:card" content="summary">
   
@@ -67,39 +71,69 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2024" class="archive-year">2024</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2024/10/23/hello-world/" class="archive-article-date">
-  <time class="dt-published" datetime="2024-10-23T07:13:51.697Z" itemprop="datePublished">Oct 23</time>
+        <section id="main"><article id="post-lua深拷贝" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/09/22/lua%E6%B7%B1%E6%8B%B7%E8%B4%9D/" class="article-date">
+  <time class="dt-published" datetime="2021-09-22T00:48:10.000Z" itemprop="datePublished">2021-09-22</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Lua/">Lua</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2024/10/23/hello-world/">Hello World</a>
+    <h1 class="p-name article-title" itemprop="headline name">
+      lua深拷贝
     </h1>
   
 
-    </header>
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">DeepCopy1</span><span class="params">(obj)</span></span></span><br><span class="line">    <span class="keyword">local</span> InTable = &#123;&#125;</span><br><span class="line">    <span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">Func</span><span class="params">(obj)</span></span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">type</span>(obj) ~= <span class="string">&quot;table&quot;</span> <span class="keyword">then</span></span><br><span class="line">            <span class="keyword">return</span> obj</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">local</span> NewTable = &#123;&#125;</span><br><span class="line">        InTable[obj] = NewTable</span><br><span class="line">        <span class="keyword">for</span> k, v <span class="keyword">in</span> <span class="built_in">pairs</span>(obj) <span class="keyword">do</span></span><br><span class="line">        NewTable[Func(k)] = Func(v) </span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">setmetatable</span>(NewTable, <span class="built_in">getmetatable</span>(obj))</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">return</span> Func(obj)</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">DeepCopy2</span><span class="params">(obj)</span></span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">copy</span><span class="params">(obj)</span></span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">type</span>(obj) ~= <span class="string">&quot;table&quot;</span> <span class="keyword">then</span></span><br><span class="line">            <span class="keyword">return</span> obj</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">local</span> newTable = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="built_in">pairs</span>(obj) <span class="keyword">do</span></span><br><span class="line">            newTable[copy(k)] = copy(v)</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">setmetatable</span>(newTable, <span class="built_in">getmetatable</span>(obj))</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> copy(obj)</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://guanyy95.github.io/2021/09/22/lua%E6%B7%B1%E6%8B%B7%E8%B4%9D/" data-id="cm7o74kke000uesw47kl56v61" data-title="lua深拷贝" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
   </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/09/23/lua%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          lua面向对象
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/19/225%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E6%A0%88/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">225队列实现栈</div>
+    </a>
+  
+</nav>
+
+  
 </article>
-  
-  
-    </div></section>
-  
 
 
 </section>

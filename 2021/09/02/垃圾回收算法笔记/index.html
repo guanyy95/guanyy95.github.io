@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>垃圾回收算法笔记 | 蹲在天边拉屎</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="各类垃圾回收常用核心算法读书笔记，优缺点横向对比，持续更新....">
+<meta property="og:type" content="article">
+<meta property="og:title" content="垃圾回收算法笔记">
+<meta property="og:url" content="https://guanyy95.github.io/2021/09/02/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="蹲在天边拉屎">
+<meta property="og:description" content="各类垃圾回收常用核心算法读书笔记，优缺点横向对比，持续更新....">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0ddf3222eb4d4c919e65217be55f89f6~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7140282dadae435f817e5d3a014a8474~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fc523f03a31d4a3f983ef72117a1a418~tplv-k3u1fbpfcp-watermark.image">
+<meta property="article:published_time" content="2021-09-02T03:09:00.000Z">
+<meta property="article:modified_time" content="2024-10-24T02:20:07.853Z">
+<meta property="article:author" content="GYY">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0ddf3222eb4d4c919e65217be55f89f6~tplv-k3u1fbpfcp-watermark.image">
+  
+    <link rel="alternate" href="/atom.xml" title="蹲在天边拉屎" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">蹲在天边拉屎</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://guanyy95.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-垃圾回收算法笔记" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/09/02/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" class="article-date">
+  <time class="dt-published" datetime="2021-09-02T03:09:00.000Z" itemprop="datePublished">2021-09-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      垃圾回收算法笔记
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>这篇文章主要用于最近在读的垃圾回收算法与实现这本书中的各种方法的总结，边读边进行记录。方便之后会看的时候可以直接进行查阅。</p>
+</blockquote>
+<h2 id="基本概念名词"><a href="#基本概念名词" class="headerlink" title="基本概念名词"></a>基本概念名词</h2><p><strong>头</strong> 保存对象本身信息,包含对象的大小和对象的种类，每种算法的实现中头包含的内容也不相同</p>
+<p><strong>域</strong> 对象使用者在对象中可访问的部分为域。</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0ddf3222eb4d4c919e65217be55f89f6~tplv-k3u1fbpfcp-watermark.image" alt="image.png"></p>
+<p><strong>mutator</strong> mutator就是程序本身</p>
+<p><strong>活动&#x2F;非活动对象</strong> 能通过mutator引用访问到的对象为活动对象，反之为非活动对象。</p>
+<p><strong>根root</strong> 直接或间接从全局变量空间引用的对象为活动对象。能作为根的对象，</p>
+<ol>
+<li>全局static变量</li>
+<li>栈中变量(代码中方法的局部变量)</li>
+<li>寄存器</li>
+<li>常量</li>
+<li>本地方法栈中引用的对象</li>
+<li>已经启动并且未停止的线程</li>
+</ol>
+<p><strong>评价标准</strong> 吞吐量，最大暂停时间，堆使用效率，访问局部性</p>
+<h2 id="GC-标记-清除算法"><a href="#GC-标记-清除算法" class="headerlink" title="GC-标记-清除算法"></a>GC-标记-清除算法</h2><p>标记阶段把所有活动对象做上标记，清除阶段把没有标记的对象回收。</p>
+<p><strong>标记阶段</strong>：遍历对象并标记。使用深度优先搜索比广度优先搜索使用更少的内存。</p>
+<p><strong>清除阶段</strong>：遍历堆内存，根据标记位进行对象内存的清除，把垃圾对象所占用的内存地址链接到空闲连链表</p>
+<p><strong>分配过程</strong>：进行新的对象创建的时候，搜索空闲链表找到空闲的内存地址空间。</p>
+<h3 id="优先"><a href="#优先" class="headerlink" title="优先"></a>优先</h3><ol>
+<li>实现简单</li>
+<li>与保守式算法兼容，GC标记清除算法不会移动对象，</li>
+</ol>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ol>
+<li>碎片化</li>
+<li>分配速度，所有操作都需要遍历空闲链表和堆空间。</li>
+<li>与写时复制技术不兼容，写时复制属于延时操作，GC回收时不应该直接操作内存空间。</li>
+</ol>
+<h3 id="优化方法"><a href="#优化方法" class="headerlink" title="优化方法"></a>优化方法</h3><p><strong>BiBOP</strong><br>利用类似字典哈希的方法对内存中的分块进行管理，不同大小分块对应不同的链表，在分配的时候可以有效提升分配效率，避免了遍历整个空闲链表</p>
+<p><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7140282dadae435f817e5d3a014a8474~tplv-k3u1fbpfcp-watermark.image" alt="image.png"></p>
+<p><strong>位图标记</strong><br>使用bitmap将所有的堆内存地址空间进行映射，有效解决了缺点第三条的写时复制相冲突，可以作伪删除操作</p>
+<p><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fc523f03a31d4a3f983ef72117a1a418~tplv-k3u1fbpfcp-watermark.image" alt="image.png"></p>
+<h2 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h2><p>引用计数的方法是在所有的Object属性中增加一个计数器头。当对象被引用之后，计数器+1， 反之计数器-1。当计数器的值为0的时候，GC程序判断此对象为垃圾对象，将其加入到空闲链表当中发现时立即进行回收。对象自身会对自己进行判断。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ol>
+<li>可立即进行垃圾回收，GC程序的运行和内存管理同时进行，可以提高分配时的成功率。</li>
+<li>最大暂停时间短，GC程序的回收工作只发生在发现垃圾的时候。减少GC的运行时间。</li>
+<li>没有必要沿指针查找</li>
+</ol>
+<h3 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h3><ol>
+<li>计数器增减操作频繁</li>
+<li>计数器占位空间</li>
+<li>无法处理循环引用</li>
+</ol>
+<h2 id="部分标记-清除算法"><a href="#部分标记-清除算法" class="headerlink" title="部分标记-清除算法"></a>部分标记-清除算法</h2><p>部分标记清除算法目的是为了解决引用计数方法中存在的无法回收循环引用对象的问题。GC进行标记清除是遍历所有对象，产生无用的搜索。</p>
+<p><strong>“部分标记 - 清除算法”（Partial Mark &amp; Sweep）查找非活动对象。</strong><br>所有对象将标记不同颜色</p>
+<ol>
+<li>黑：绝对不是垃圾的对象（对象产生式的初始颜色）</li>
+<li>白：绝对是垃圾的对象</li>
+<li>灰：所有过的对象</li>
+</ol>
+<h2 id="持续更新中—"><a href="#持续更新中—" class="headerlink" title="持续更新中—-"></a>持续更新中—-</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://guanyy95.github.io/2021/09/02/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" data-id="cm7o74kkg0013esw4hu2d3r4w" data-title="垃圾回收算法笔记" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/09/02/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          排序算法
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/02/15%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">15三数之和</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Lua/">Lua</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Testing/">Testing</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Unity/">Unity</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98/">刷题</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">性能优化</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/">C#</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%81%8C%E5%9C%BA/">职场</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/10/">October 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/28/Unity%E4%BC%98%E5%8C%96%E7%AF%87-Texture%E7%BA%B9%E7%90%86/">Unity优化篇-Texture纹理</a>
+          </li>
+        
+          <li>
+            <a href="/2024/10/23/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2023/07/22/%E3%80%90%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E3%80%91UGUI%E5%90%88%E6%89%B9%E9%97%AE%E9%A2%98/">【游戏开发】UGUI合批问题</a>
+          </li>
+        
+          <li>
+            <a href="/2023/01/25/%E6%A0%B9%E6%8D%AE%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90pdf%E5%90%88%E5%90%8C%E8%84%9A%E6%9C%AC%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/">根据模板生成pdf合同脚本使用说明</a>
+          </li>
+        
+          <li>
+            <a href="/2022/12/10/Lua%E5%A5%87%E6%B7%AB%E5%B0%8F%E6%8A%80%E5%B7%A7/">Lua奇淫小技巧</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 GYY<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

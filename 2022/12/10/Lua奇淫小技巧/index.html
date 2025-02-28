@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Lua奇淫小技巧 | 蹲在天边拉屎</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Lua奇淫小技常见的小坑">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lua奇淫小技巧">
+<meta property="og:url" content="https://guanyy95.github.io/2022/12/10/Lua%E5%A5%87%E6%B7%AB%E5%B0%8F%E6%8A%80%E5%B7%A7/index.html">
+<meta property="og:site_name" content="蹲在天边拉屎">
+<meta property="og:description" content="Lua奇淫小技常见的小坑">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-12-10T11:16:31.000Z">
+<meta property="article:modified_time" content="2024-10-24T02:20:07.851Z">
+<meta property="article:author" content="GYY">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="蹲在天边拉屎" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">蹲在天边拉屎</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://guanyy95.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Lua奇淫小技巧" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2022/12/10/Lua%E5%A5%87%E6%B7%AB%E5%B0%8F%E6%8A%80%E5%B7%A7/" class="article-date">
+  <time class="dt-published" datetime="2022-12-10T11:16:31.000Z" itemprop="datePublished">2022-12-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Lua奇淫小技巧
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>工作中的项目主要是使用Unity + Lua的开发模式，日常需求基本使用lua开发各类模块。相比于传统的C# C++等常见语言，Lua有一些特别的小点会需要区分一下</p>
+<h3 id="Logical-Operators-逻辑运算处理"><a href="#Logical-Operators-逻辑运算处理" class="headerlink" title="Logical Operators 逻辑运算处理"></a><a target="_blank" rel="noopener" href="http://www.lua.org/manual/5.4/manual.html#3.4.5">Logical Operators 逻辑运算处理</a></h3><p>运算符有三种 and、or 和 not。所有的逻辑运算符值把false和nil都当做false进行处理，其余值都为true。</p>
+<ol>
+<li>not ： negation总是返回false 或者 true</li>
+<li>and : conjunction 如果第一个参数是false或者nil，就返回第一个参数，否则返回第二个参数</li>
+</ol>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">nil</span> <span class="keyword">and</span> <span class="number">10</span>          <span class="comment">--&gt; nil</span></span><br><span class="line"><span class="literal">false</span> <span class="keyword">and</span> <span class="built_in">error</span>()   <span class="comment">--&gt; false</span></span><br><span class="line"><span class="literal">false</span> <span class="keyword">and</span> <span class="literal">nil</span>       <span class="comment">--&gt; false</span></span><br><span class="line"><span class="number">10</span> <span class="keyword">and</span> <span class="number">20</span>           <span class="comment">--&gt; 20</span></span><br><span class="line"><span class="literal">nil</span> == <span class="literal">nil</span> <span class="keyword">and</span> <span class="number">10</span>   <span class="comment">--&gt; 10</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>or : disjunction 如果第一个参数不是false或者nil，则返回第一个参数，否则返回第二个参数<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">10</span> <span class="keyword">or</span> <span class="number">20</span>            <span class="comment">--&gt; 10</span></span><br><span class="line"><span class="number">10</span> <span class="keyword">or</span> <span class="built_in">error</span>()       <span class="comment">--&gt; 10</span></span><br><span class="line"><span class="number">10</span> <span class="keyword">or</span> <span class="number">20</span>            <span class="comment">--&gt; 10</span></span><br><span class="line"><span class="number">10</span> <span class="keyword">or</span> <span class="built_in">error</span>()       <span class="comment">--&gt; 10</span></span><br><span class="line"><span class="literal">false</span> <span class="keyword">or</span> <span class="literal">nil</span>        <span class="comment">--&gt; nil</span></span><br></pre></td></tr></table></figure></li>
+<li>开发中通常会使用两种方式使用，一个是类似三元运算符的用法，一个是设置默认值得方法<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 默认值设置</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">set</span><span class="params">(val)</span></span></span><br><span class="line"><span class="keyword">local</span> a  = val <span class="keyword">or</span> defaultVal</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 三元判断</span></span><br><span class="line"><span class="keyword">local</span> bool = a <span class="keyword">and</span> b <span class="keyword">or</span> c</span><br><span class="line"><span class="comment">-- 此处有个常见的易错带你</span></span><br><span class="line">业务中常用<span class="keyword">if</span>进行判断一个对象是空<span class="literal">nil</span>还是有值<span class="keyword">if</span> <span class="built_in">table</span>[i] <span class="keyword">then</span></span><br><span class="line">此时如果用同样的方法会得到错误的结果</span><br><span class="line">a 如果为空 则直接返回<span class="literal">nil</span>而不是输出结果c，如果使用判断则需要注意将a需要是个boolean</span><br><span class="line"></span><br><span class="line"><span class="keyword">local</span> bool = a == <span class="literal">nil</span> <span class="keyword">and</span> b <span class="keyword">or</span> c</span><br><span class="line"><span class="literal">true</span> <span class="keyword">and</span> b -&gt; b, 返回 b <span class="keyword">or</span> c</span><br><span class="line"><span class="literal">false</span> <span class="keyword">and</span> b -&gt; <span class="literal">false</span>, 返回<span class="literal">false</span> <span class="keyword">or</span> c</span><br><span class="line">如果a是空，则返回b 否则返回c</span><br></pre></td></tr></table></figure></li>
+<li><a target="_blank" rel="noopener" href="http://www.lua.org/manual/5.4/manual.html#3.4.8">运算符的优先度 </a></li>
+</ol>
+<p>当多个逻辑判断条件混用的时候，lua中需要注意一下顺序，not &gt; ~ &gt; and &gt; or </p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">or</span></span><br><span class="line"><span class="keyword">and</span></span><br><span class="line">&lt;     &gt;     &lt;=    &gt;=    ~=    ==</span><br><span class="line">|</span><br><span class="line">~</span><br><span class="line">&amp;</span><br><span class="line">&lt;&lt;    &gt;&gt;</span><br><span class="line">..</span><br><span class="line">+     -</span><br><span class="line">*     /     //    %</span><br><span class="line">unary operators (<span class="keyword">not</span>   #     -     ~)</span><br><span class="line">^</span><br></pre></td></tr></table></figure>
+<h3 id="The-Length-Operator-长度运算符"><a href="#The-Length-Operator-长度运算符" class="headerlink" title="The Length Operator #长度运算符"></a><a target="_blank" rel="noopener" href="http://www.lua.org/manual/5.4/manual.html#3.4.7">The Length Operator #长度运算符</a></h3><p>能够做为长度索引的条件在Lua中是这样定义border的，当是个连续的sequence会return only border。当#对象不是一个sequence，结果是不定的。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(border == <span class="number">0</span> <span class="keyword">or</span> t[border] ~= <span class="literal">nil</span>) <span class="keyword">and</span></span><br><span class="line">(t[border + <span class="number">1</span>] == <span class="literal">nil</span> <span class="keyword">or</span> border == <span class="built_in">math</span>.maxinteger)</span><br></pre></td></tr></table></figure>
+<p>不适用默认的#运算规则，也可以自己重写__len metamethods</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://guanyy95.github.io/2022/12/10/Lua%E5%A5%87%E6%B7%AB%E5%B0%8F%E6%8A%80%E5%B7%A7/" data-id="cm7o74kkb000hesw43jmm6y7j" data-title="Lua奇淫小技巧" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/01/25/%E6%A0%B9%E6%8D%AE%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90pdf%E5%90%88%E5%90%8C%E8%84%9A%E6%9C%AC%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          根据模板生成pdf合同脚本使用说明
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2022/06/05/Lua%E7%83%AD%E5%8A%A0%E8%BD%BD%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Lua热加载实现方案</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Lua/">Lua</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Testing/">Testing</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Unity/">Unity</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%B7%E9%A2%98/">刷题</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E5%85%B7/">工具</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/">性能优化</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/C/">C#</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%81%8C%E5%9C%BA/">职场</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/10/">October 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/28/Unity%E4%BC%98%E5%8C%96%E7%AF%87-Texture%E7%BA%B9%E7%90%86/">Unity优化篇-Texture纹理</a>
+          </li>
+        
+          <li>
+            <a href="/2024/10/23/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2023/07/22/%E3%80%90%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E3%80%91UGUI%E5%90%88%E6%89%B9%E9%97%AE%E9%A2%98/">【游戏开发】UGUI合批问题</a>
+          </li>
+        
+          <li>
+            <a href="/2023/01/25/%E6%A0%B9%E6%8D%AE%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90pdf%E5%90%88%E5%90%8C%E8%84%9A%E6%9C%AC%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/">根据模板生成pdf合同脚本使用说明</a>
+          </li>
+        
+          <li>
+            <a href="/2022/12/10/Lua%E5%A5%87%E6%B7%AB%E5%B0%8F%E6%8A%80%E5%B7%A7/">Lua奇淫小技巧</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 GYY<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
